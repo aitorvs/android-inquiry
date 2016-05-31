@@ -1,5 +1,10 @@
 apply plugin: 'com.android.library'
 
+def versionMajor = 3
+def versionMinor = 0
+def versionPatch = 1
+def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
@@ -7,8 +12,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1
-        versionName "2.0.1"
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}" + (versionPatch == 0 ? "" : ".${versionPatch}")
     }
     lintOptions {
         abortOnError false
