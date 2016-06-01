@@ -148,11 +148,14 @@ class DatabaseSchemaParser {
     public static String getClassSchema(@NonNull List<Converter> converters, @NonNull Class<?> type) {
         StringBuilder schema = new StringBuilder();
         List<Field> fields = getAllFields(type);
+        boolean first = true;
         for (Field field : fields) {
             field.setAccessible(true);
             String fieldSchema = getFieldSchema(converters, field);
             if (fieldSchema == null) continue;
-            if (fieldSchema.length() > 0)
+            if (first)
+                first = false;
+            else
                 schema.append(", ");
             schema.append(fieldSchema);
         }
