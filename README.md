@@ -100,20 +100,17 @@ public class Person {
     // Default constructor is needed so Inquiry can auto construct instances
     public Person() {}
 
-    public Person(String name, int age, float rank, boolean admin, Person spouse) {
+    public Person(String name, int age, float rank, boolean admin) {
         this.name = name;
         this.age = age;
         this.rank = rank;
         this.admin = admin;
-        this.spouse = spouse;
     }
 
     @Column public String name;
     @Column public int age;
     @Column public float rank;
     @Column public boolean admin;
-    // Reference annotation is discussed in the next section
-    @Column public Person spouse;
 }
 ```
 
@@ -154,7 +151,7 @@ public class Person {
 
 ```java
 @Table
-public class LovingPerson {
+public class LovingPerson extends Person {
     // Default constructor is needed so Inquiry can auto construct instances
     public LovingPerson() {}
 
