@@ -17,11 +17,11 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class SerializableConverter extends Converter<Serializable> {
+public class SerializableConverter extends Converter<Serializable, byte[]> {
     @Override
-    public Serializable convert(@NonNull Inquiry inquiry, @NonNull ContentValue value, @NonNull Class<? extends Serializable> fieldType) throws IOException {
+    public Serializable convert(@NonNull Inquiry inquiry, @NonNull ContentValue<byte[]> value, @NonNull Class<? extends Serializable> fieldType) throws IOException {
         try {
-            byte[] blob = (byte[]) value.getContent();
+            byte[] blob = value.getContent();
             return blob == null ? null : deserializeObject(blob, fieldType);
         } catch (IllegalArgumentException e) {
             throw new IOException(e);
@@ -30,7 +30,7 @@ public class SerializableConverter extends Converter<Serializable> {
 
     @NonNull
     @Override
-    public ContentValue convert(@NonNull Inquiry inquiry, @NonNull Serializable value) throws IOException {
+    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @NonNull Serializable value) throws IOException {
         return ContentValue.valueOf(serializeObject(value));
     }
 
@@ -42,7 +42,7 @@ public class SerializableConverter extends Converter<Serializable> {
 
     @NonNull
     @Override
-    public Class<?> getOutputType() {
+    public Class<byte[]> getOutputType() {
         return byte[].class;
     }
 

@@ -7,17 +7,17 @@ import com.heinrichreimer.inquiry.Inquiry;
 
 import java.io.IOException;
 
-public abstract class Converter<T> {
-    public abstract T convert(@NonNull Inquiry inquiry, @NonNull ContentValue value, @NonNull Class<? extends T> fieldType) throws IOException;
+public abstract class Converter<T, S> {
+    public abstract T convert(@NonNull Inquiry inquiry, @NonNull ContentValue<S> value, @NonNull Class<? extends T> fieldType) throws IOException;
 
     @NonNull
-    public abstract ContentValue convert(@NonNull Inquiry inquiry, @NonNull T value) throws IOException;
+    public abstract ContentValue<S> convert(@NonNull Inquiry inquiry, @NonNull T value) throws IOException;
 
     @NonNull
     public abstract Class<? extends T> getInputType();
 
     @NonNull
-    public abstract Class<?> getOutputType();
+    public abstract Class<S> getOutputType();
 
     public boolean isSupported(Class<?> fieldType) {
         return getInputType().isAssignableFrom(fieldType);

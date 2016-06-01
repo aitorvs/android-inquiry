@@ -13,10 +13,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class BitmapConverter extends Converter<Bitmap> {
+public class BitmapConverter extends Converter<Bitmap, byte[]> {
     @Override
-    public Bitmap convert(@NonNull Inquiry inquiry, @NonNull ContentValue value, @NonNull Class<? extends Bitmap> fieldType) throws IOException {
-        byte[] blob = (byte[]) value.getContent();
+    public Bitmap convert(@NonNull Inquiry inquiry, @NonNull ContentValue<byte[]> value, @NonNull Class<? extends Bitmap> fieldType) throws IOException {
+        byte[] blob = value.getContent();
         try {
             return blob == null ? null : BitmapFactory.decodeByteArray(blob, 0, blob.length);
         } catch (IllegalArgumentException e) {
@@ -26,7 +26,7 @@ public class BitmapConverter extends Converter<Bitmap> {
 
     @NonNull
     @Override
-    public ContentValue convert(@NonNull Inquiry inquiry, @NonNull Bitmap value) throws IOException {
+    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @NonNull Bitmap value) throws IOException {
         return ContentValue.valueOf(bitmapToBytes(value));
     }
 
@@ -38,7 +38,7 @@ public class BitmapConverter extends Converter<Bitmap> {
 
     @NonNull
     @Override
-    public Class<?> getOutputType() {
+    public Class<byte[]> getOutputType() {
         return byte[].class;
     }
 

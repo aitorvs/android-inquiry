@@ -9,10 +9,10 @@ import com.heinrichreimer.inquiry.convert.Converter;
 
 import java.io.IOException;
 
-public class ReferenceConverter extends Converter<Object> {
+public class ReferenceConverter extends Converter<Object, Long> {
     @Override
-    public Object convert(@NonNull Inquiry inquiry, @NonNull ContentValue value, @NonNull Class<?> fieldType) throws IOException {
-        long id = (long) value.getContent();
+    public Object convert(@NonNull Inquiry inquiry, @NonNull ContentValue<Long> value, @NonNull Class<?> fieldType) throws IOException {
+        long id = value.getContent() == null ? 0L : value.getContent();
         return inquiry
                 .select(fieldType)
                 .where("_id = ?", id)
@@ -21,19 +21,15 @@ public class ReferenceConverter extends Converter<Object> {
 
     @NonNull
     @Override
-    public ContentValue convert(@NonNull Inquiry inquiry, @NonNull Object value) throws IOException {
+    public ContentValue<Long> convert(@NonNull Inquiry inquiry, @NonNull Object value) throws IOException {
         long id = -1;
-        //TODO look up if object already exists first
         Long[] ids = inquiry
                 .insert(value.getClass())
                 .value(value)
                 .run();
         if (ids != null && ids.length > 0)
             id = ids[0];
-        if (id >= 0) {
-            return ContentValue.valueOf(id);
-        }
-        return ContentValue.valueOfNull();
+        return ContentValue.valueOf(id >= 0 ? id : null);
     }
 
     @NonNull
@@ -44,8 +40,8 @@ public class ReferenceConverter extends Converter<Object> {
 
     @NonNull
     @Override
-    public Class<?> getOutputType() {
-        return long.class;
+    public Class<Long> getOutputType() {
+        return Long.class;
     }
 
     @Override

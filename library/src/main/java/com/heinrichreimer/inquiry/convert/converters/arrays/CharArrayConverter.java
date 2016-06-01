@@ -1,4 +1,4 @@
-package com.heinrichreimer.inquiry.convert.converters;
+package com.heinrichreimer.inquiry.convert.converters.arrays;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -9,16 +9,16 @@ import com.heinrichreimer.inquiry.convert.Converter;
 
 import java.io.IOException;
 
-public class CharArrayConverter extends Converter<char[]> {
+public class CharArrayConverter extends Converter<char[], String> {
     @Override
-    public char[] convert(@NonNull Inquiry inquiry, @NonNull ContentValue value, @NonNull Class<? extends char[]> fieldType) throws IOException {
-        String string = (String) value.getContent();
+    public char[] convert(@NonNull Inquiry inquiry, @NonNull ContentValue<String> value, @NonNull Class<? extends char[]> fieldType) throws IOException {
+        String string = value.getContent();
         return !TextUtils.isEmpty(string) ? string.toCharArray() : null;
     }
 
     @NonNull
     @Override
-    public ContentValue convert(@NonNull Inquiry inquiry, @NonNull char[] value) throws IOException {
+    public ContentValue<String> convert(@NonNull Inquiry inquiry, @NonNull char[] value) throws IOException {
         return ContentValue.valueOf(String.valueOf(value));
     }
 
@@ -30,7 +30,7 @@ public class CharArrayConverter extends Converter<char[]> {
 
     @NonNull
     @Override
-    public Class<?> getOutputType() {
+    public Class<String> getOutputType() {
         return String.class;
     }
 }
