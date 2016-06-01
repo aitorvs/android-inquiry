@@ -46,6 +46,13 @@ public class SerializableConverter extends Converter<Serializable, byte[]> {
         return byte[].class;
     }
 
+    @Override
+    public boolean isSupported(Class<?> fieldType) {
+        //Arrays in java implement Serializable. However they are only serializable if their components are.
+        return super.isSupported(fieldType) &&
+                (!fieldType.isArray() || isSupported(fieldType.getComponentType()));
+    }
+
     @NonNull
     private static byte[] serializeObject(@NonNull Object object) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
