@@ -13,7 +13,7 @@ Read and write class objects from tables in a database and supports deep object 
 
 ## Dependency
 
-*Inquiry* is available on [**jitpack.io**](https://www.jitpack.io/v/com.heinrichreimersoftware/inquiry.svg)
+*Inquiry* is available on [**jitpack.io**](https://www.jitpack.io/#com.heinrichreimersoftware/inquiry)
 
 ### Gradle dependency:
 
