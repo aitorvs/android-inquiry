@@ -4,8 +4,8 @@
 [![Build Status](https://travis-ci.org/HeinrichReimer/inquiry.svg?branch=master)](https://travis-ci.org/HeinrichReimer/inquiry)
 [![Apache License 2.0](https://img.shields.io/github/license/HeinrichReimer/material-intro.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-*This is a forked and improved version of [Aidan Follestad's](https://github.com/afollestad) awesome library [Inquiry](https://github.com/afollestad/inquiry).*
-* Credit goes to him for the idea of annotation based automatic SQLite database modification :sweat_smile:.*
+*This is a forked and improved version of [Aidan Follestad's](https://github.com/afollestad) awesome library [Inquiry](https://github.com/afollestad/inquiry).  
+Credit goes to him for the idea of annotation based automatic SQLite database modification :sweat_smile:.*
 
 Inquiry is a simple library for Android that makes construction and use of SQLite databases super easy.
 
@@ -13,7 +13,7 @@ Read and write class objects from tables in a database and supports deep object 
 
 ## Dependency
 
-*inquiry* is available on [**jitpack.io**](https://www.jitpack.io/v/com.heinrichreimersoftware/inquiry.svg)
+*Inquiry* is available on [**jitpack.io**](https://www.jitpack.io/v/com.heinrichreimersoftware/inquiry.svg)
 
 ### Gradle dependency:
 
@@ -26,14 +26,36 @@ allprojects {
 }
 ```
 
-Module `nuild.gradle`
+Module `build.gradle`
 ```gradle
 dependencies {
-    compile 'com.heinrichreimersoftware:inquiry:3.0-beta'
+    compile 'com.heinrichreimersoftware:inquiry:3.0.1-beta'
 }
 ```
 
-## Quick Setup
+## Table of Contents
+
+1. [Dependency](https://github.com/HeinrichReimer/inquiry#dependency)
+*  [Quick Setup](https://github.com/HeinrichReimer/inquiry#quick-setup)
+*  [Example Row](https://github.com/HeinrichReimer/inquiry#example-row)
+*  [References](https://github.com/HeinrichReimer/inquiry#references)
+*  [Converters](https://github.com/HeinrichReimer/inquiry#converters)
+*  [Querying Rows](https://github.com/HeinrichReimer/inquiry#querying-rows)
+    1. [Basics](https://github.com/HeinrichReimer/inquiry#basics)
+    *  [Where](https://github.com/HeinrichReimer/inquiry#wheren)
+    *  [Sorting and Limiting](https://github.com/HeinrichReimer/inquiry#sorting-and-limiting)
+*  [Inserting Rows](https://github.com/HeinrichReimer/inquiry#inserting-rows)
+*  [Updating Rows](https://github.com/HeinrichReimer/inquiry#updating-rows)
+    1. [Basics](https://github.com/HeinrichReimer/inquiry#basics-1)
+    *  [Updating Specific Columns](https://github.com/HeinrichReimer/inquiry#updating-specific-columns)
+*  [Deleting Rows](https://github.com/HeinrichReimer/inquiry#deleting-rows)
+*  [Dropping Tables](https://github.com/HeinrichReimer/inquiry#dropping-tables)
+*  [Accessing Content Providers](https://github.com/HeinrichReimer/inquiry#accessing-content-providers)
+*  [Changelog](https://github.com/HeinrichReimer/inquiry#changelog)
+*  [Open source libraries](https://github.com/HeinrichReimer/inquiry#open-source-libraries)
+*  [License](https://github.com/HeinrichReimer/inquiry#license)
+
+## Quick setup
 
 When your app starts, you need to initialize Inquiry. `Inquiry.init()` and `Inquiry.deinit()` can be used from anywhere, but a reliable place to do so is in an Activity:
 
@@ -67,7 +89,7 @@ When your app is done with Inquiry, you *should* call `Inquiry.deinit()` to help
 
 (You can initialize multiple Inquiry instances too by using `new Inquiry(this, "myDatabase", 1)` and `inquiry.destroy()`)
 
-## Example Row
+## Example row
 
 In Inquiry, a row is just an object which contains a set of values that can be read from and written to
 a table in your database.
@@ -155,11 +177,33 @@ Basically, this allows you to have non-primitive column types that are blazing f
 No serialization is necessary. You can even have two rows which reference the same object (a single object 
 with the same ID).
 
-**Pro Tip:** This example showcases class inheritance too. All `@Column`'s from `Person` get inherited to `LovingPerson`.:
+**Pro Tip:** This example showcases class inheritance too. All `@Column`'s from `Person` get inherited to `LovingPerson`.
 
 **Attention:** Make sure you don't create looping back references when using the reference feature.
 
-## Querying Rows
+## Converters
+
+Inquiry internally uses `Converter`s to convert some basic Java types to insertable `ContentValue`s.
+
+Currently Inquiry can automatically convert the following types:
+
+* Java primitives (including `String`)
+* References (see above)
+* `byte[]`
+* `char[]`
+* `Character[]`
+* `Bitmap`
+* `Serializable`
+
+If you need to convert other objects you can simply add your own converter:
+
+```java
+Person[] result = Inquiry.get()
+    .addConverter(new CustomConverter())
+    ...
+```
+
+## Querying rows
 
 ### Basics
 
@@ -241,7 +285,7 @@ Person result = Inquiry.get()
 Behind the scenes, it's using `where()` to select the row. `atPosition()` moves to a row position 
 and retrieves the row's ID.
 
-### Sorting and Limiting
+### Sorting and limiting
 
 This code would limit the maximum number of rows returned to 100. It would sort the results by values
 in the "name" column, in descending (Z-A, or greater to smaller) order:
@@ -263,7 +307,7 @@ If you understand SQL, you'll know you can specify multiple sort parameters sepa
 
 The above sort value would sort every column by name descending (large to small, Z-A) first, *and then* by age ascending (small to large).
 
-## Inserting Rows
+## Inserting rows
 
 Insertion is pretty straight forward. This inserts three `People`:
 
@@ -296,7 +340,7 @@ Inquiry.get()
 
 An ID will be added and incrementet automatically.
 
-## Updating Rows
+## Updating rows
 
 ### Basics
 
@@ -337,7 +381,7 @@ Integer updatedCount = Inquiry.get()
 The above code will update any rows with their name equal to *"Aidan"*, however it will only modify
 the `age` and `rank` columns of the updated rows. The other columns will be left alone.
 
-## Deleting Rows
+## Deleting rows
 
 Deletion is simple:
 
@@ -353,7 +397,7 @@ specify `where()` args, every row in the table would be deleted.
 
 (Like querying, `atPosition(int)` can be used in place of `where(String)` to delete a specific row.)
 
-## Dropping Tables
+## Dropping tables
 
 Dropping a table means deleting it. It's pretty straight forward:
 
@@ -367,7 +411,7 @@ Just pass the data type name, and it's gone.
 ## *Accessing Content Providers*
 
 *Accessing content providers has been removed from this fork of Inquiry.
-If you need to access content providers, please check out the [original library](https://github.com/afollestad/inquiry).*
+If you need to access content providers, I highly recommend you to check out the [original library](https://github.com/afollestad/inquiry).*
 
 ## Changelog
 
