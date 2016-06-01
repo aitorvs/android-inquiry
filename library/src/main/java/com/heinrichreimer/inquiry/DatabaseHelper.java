@@ -17,7 +17,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(Context context, String databaseName, @NonNull String table, @Nullable String columns, int version) {
         super(context, databaseName, null, version);
         this.table = table;
-        createStatement = columns == null ? null : String.format("CREATE TABLE IF NOT EXISTS %s", table);
+        createStatement = columns == null ? null : String.format("CREATE TABLE IF NOT EXISTS %s (%s)", table, columns);
         getWritableDatabase(); //This will invoke onUpgrade if necessary
     }
 

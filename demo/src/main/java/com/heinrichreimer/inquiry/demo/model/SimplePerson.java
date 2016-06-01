@@ -11,21 +11,23 @@ public class SimplePerson {
     @Column
     private String name;
     @Column
-    private Stuff stuff;
+    private Stuff[] stuff;
 
     public SimplePerson() {
     }
 
     public SimplePerson(String name) {
         this.name = name;
-        stuff = new Stuff(new Random());
+        Random random = new Random();
+        stuff = new Stuff[]{new Stuff(random), new Stuff(random)};
     }
 
     @Override
     public String toString() {
         return "SimplePerson{" +
                 "name='" + name + "'" +
-                ", stuff=" + stuff.hashCode() +
+                ", stuff[0]=" + stuff[0].hashCode() +
+                ", stuff[1]=" + stuff[1].hashCode() +
                 '}';
     }
 }
