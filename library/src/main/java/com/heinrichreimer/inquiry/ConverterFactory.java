@@ -2,10 +2,11 @@ package com.heinrichreimer.inquiry;
 
 import com.heinrichreimer.inquiry.convert.Converter;
 import com.heinrichreimer.inquiry.convert.converters.BitmapConverter;
-import com.heinrichreimer.inquiry.convert.converters.CharArrayConverter;
-import com.heinrichreimer.inquiry.convert.converters.CharacterArrayConverter;
 import com.heinrichreimer.inquiry.convert.converters.ReferenceConverter;
 import com.heinrichreimer.inquiry.convert.converters.SerializableConverter;
+import com.heinrichreimer.inquiry.convert.converters.arrays.CharArrayConverter;
+import com.heinrichreimer.inquiry.convert.converters.arrays.CharacterArrayConverter;
+import com.heinrichreimer.inquiry.convert.converters.arrays.ReferenceArrrayConverter;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -31,6 +32,7 @@ class ConverterFactory {
         converters.add(new CharArrayConverter());
         converters.add(new CharacterArrayConverter());
         converters.add(new ReferenceConverter());
+        converters.add(new ReferenceArrrayConverter());
         return Collections.unmodifiableList(converters);
     }
 
