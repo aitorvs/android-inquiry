@@ -6,7 +6,7 @@ import com.heinrichreimer.inquiry.annotations.Table;
 @Table("persons")
 public class Person {
 
-    @Column(value = "name", unique = true)
+    @Column("name")
     private String name;
     @Column("age")
     private int age;
