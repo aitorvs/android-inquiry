@@ -12,26 +12,26 @@ import android.util.Log;
 class DatabaseHelper extends SQLiteOpenHelper {
 
     private final String table;
-    private final String createStatement;
 
     public DatabaseHelper(Context context, String databaseName, @NonNull String table, @Nullable String columns, int version) {
         super(context, databaseName, null, version);
         this.table = table;
-        createStatement = columns == null ? null : String.format("CREATE TABLE IF NOT EXISTS %s (%s)", table, columns);
-        getWritableDatabase(); //This will invoke onUpgrade if necessary
+        if (columns != null) {
+            getWritableDatabase(); //This will invoke onUpgrade if necessary
+            String createStatement = String.format("CREATE TABLE IF NOT EXISTS %s (%s)", table, columns);
+            getWritableDatabase().execSQL(createStatement);
+        }
     }
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        if (createStatement != null)
-            database.execSQL(createStatement);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (BuildConfig.DEBUG)
             Log.w(Inquiry.DEBUG_TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS " + table);
+        dropTable(db);
         onCreate(db);
     }
 
@@ -58,7 +58,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public final void dropTable() {
-        getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + table);
-        getWritableDatabase();
+        dropTable(getWritableDatabase());
+    }
+
+    private void dropTable(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS " + table);
     }
 }
