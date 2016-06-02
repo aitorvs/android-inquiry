@@ -181,7 +181,8 @@ public final class Query<RowType, RunReturn> {
             return null;
         final String[] projection = DatabaseSchemaParser.generateProjection(rowType);
         if (queryType == SELECT) {
-            StringBuilder sort = new StringBuilder(getSortOrder());
+            StringBuilder sort = new StringBuilder();
+            sort.append(getSortOrder());
             if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
             if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
             Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
