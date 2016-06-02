@@ -162,7 +162,8 @@ class DatabaseSchemaParser {
         if (schema.length() == 0)
             throw new IllegalStateException("Class " + type.getName() + " has no column fields.");
         schema.append(", _id INTEGER PRIMARY KEY AUTOINCREMENT");
-        Log.d(Inquiry.DEBUG_TAG, String.format("Schema for %s: %s", type.getSimpleName(), schema.toString()));
+        if (BuildConfig.DEBUG)
+            Log.d(Inquiry.DEBUG_TAG, String.format("Schema for %s: %s", type.getSimpleName(), schema.toString()));
         return schema.toString();
     }
 
