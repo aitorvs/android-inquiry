@@ -21,15 +21,16 @@ import java.util.Locale;
 
 public final class Query<RowType, RunReturn> {
 
-    @IntDef({SELECT, INSERT, UPDATE, DELETE})
+    @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE})
     @Retention(RetentionPolicy.SOURCE)
     @interface QueryType {
     }
 
     final static int SELECT = 1;
     final static int INSERT = 2;
-    final static int UPDATE = 3;
-    final static int DELETE = 4;
+    final static int REPLACE = 3;
+    final static int UPDATE = 4;
+    final static int DELETE = 5;
 
     @NonNull
     private final Inquiry inquiry;
@@ -214,6 +215,14 @@ public final class Query<RowType, RunReturn> {
                 }
                 database.close();
                 return (RunReturn) insertedIds;
+            case REPLACE:
+                Long[] replacedIds = new Long[values.length];
+                for (int i = 0; i < values.length; i++) {
+                    ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[i], null);
+                    replacedIds[i] = database.replace(contentValues);
+                }
+                database.close();
+                return (RunReturn) replacedIds;
             case UPDATE: {
                 ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[values.length - 1], onlyUpdate);
                 RunReturn value = (RunReturn) (Integer) database.update(contentValues, getSelection(), getSelectionArgs());

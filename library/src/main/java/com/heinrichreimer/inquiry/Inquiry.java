@@ -93,6 +93,11 @@ public final class Inquiry {
     }
 
     @NonNull
+    public <RowType> Query<RowType, Long[]> replace(@NonNull Class<RowType> rowType) {
+        return new Query<>(this, Query.REPLACE, rowType);
+    }
+
+    @NonNull
     public <RowType> Query<RowType, Integer> update(@NonNull Class<RowType> rowType) {
         return new Query<>(this, Query.UPDATE, rowType);
     }

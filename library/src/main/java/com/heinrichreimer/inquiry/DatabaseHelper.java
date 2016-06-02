@@ -43,6 +43,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(table, null, values);
     }
 
+    public final long replace(ContentValues values) {
+        return getWritableDatabase().replace(table, null, values);
+    }
+
     public final int delete(String selection, String[] selectionArgs) {
         if (selection == null) selection = "1";
         return getWritableDatabase().delete(table, selection, selectionArgs);
