@@ -4,10 +4,12 @@ import android.support.annotation.NonNull;
 
 import com.heinrichreimer.inquiry.ContentValue;
 import com.heinrichreimer.inquiry.Inquiry;
+import com.heinrichreimer.inquiry.Query;
 import com.heinrichreimer.inquiry.annotations.Table;
 import com.heinrichreimer.inquiry.convert.Converter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -44,15 +46,18 @@ public class ReferenceArrrayConverter extends Converter<Object[], String> {
             i++;
         }
 
-        return ordered;
+        return Arrays.copyOf(ordered, ordered.length, fieldType);
     }
 
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public ContentValue<String> convert(@NonNull Inquiry inquiry, @NonNull Object[] value) throws IOException {
-        Long[] ids = inquiry
-                .insert(value.getClass().getComponentType())
-                .value(value)
+        if (value.length == 0) return ContentValue.valueOf((String) null);
+
+        Class componentType = value.getClass().getComponentType();
+        Query<Object, Long[]> query = inquiry.insert(componentType);
+        Long[] ids = query.values(value)
                 .run();
         StringBuilder idString = new StringBuilder();
         boolean first = true;
