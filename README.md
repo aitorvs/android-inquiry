@@ -29,7 +29,7 @@ allprojects {
 Module `build.gradle`
 ```gradle
 dependencies {
-    compile 'com.heinrichreimersoftware:inquiry:3.0.1-beta'
+    compile 'com.heinrichreimersoftware:inquiry:3.0.2-beta'
 }
 ```
 
@@ -42,7 +42,7 @@ dependencies {
 *  [Converters](https://github.com/HeinrichReimer/inquiry#converters)
 *  [Querying Rows](https://github.com/HeinrichReimer/inquiry#querying-rows)
     1. [Basics](https://github.com/HeinrichReimer/inquiry#basics)
-    *  [Where](https://github.com/HeinrichReimer/inquiry#wheren)
+    *  [Where](https://github.com/HeinrichReimer/inquiry#where)
     *  [Sorting and Limiting](https://github.com/HeinrichReimer/inquiry#sorting-and-limiting)
 *  [Inserting Rows](https://github.com/HeinrichReimer/inquiry#inserting-rows)
 *  [Updating Rows](https://github.com/HeinrichReimer/inquiry#updating-rows)
