@@ -4,7 +4,7 @@ import com.heinrichreimer.inquiry.convert.Converter;
 import com.heinrichreimer.inquiry.convert.converters.BitmapConverter;
 import com.heinrichreimer.inquiry.convert.converters.ReferenceConverter;
 import com.heinrichreimer.inquiry.convert.converters.SerializableConverter;
-import com.heinrichreimer.inquiry.convert.converters.arrays.ReferenceArrrayConverter;
+import com.heinrichreimer.inquiry.convert.converters.arrays.ReferenceArrayConverter;
 import com.heinrichreimer.inquiry.convert.converters.arrays.primitive.BooleanArrayConverter;
 import com.heinrichreimer.inquiry.convert.converters.arrays.primitive.ByteArrayConverter;
 import com.heinrichreimer.inquiry.convert.converters.arrays.primitive.CharArrayConverter;
@@ -61,7 +61,7 @@ class ConverterFactory {
         converters.add(new PrimitiveCharArrayConverter());
         converters.add(new CharArrayConverter());
         //Reference arrays
-        converters.add(new ReferenceArrrayConverter());
+        converters.add(new ReferenceArrayConverter());
         return Collections.unmodifiableList(converters);
     }
 

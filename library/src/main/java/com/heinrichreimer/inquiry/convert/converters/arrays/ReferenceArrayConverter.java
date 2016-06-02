@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ReferenceArrrayConverter extends Converter<Object[], String> {
+public class ReferenceArrayConverter extends Converter<Object[], String> {
     @Nullable
     @Override
     public Object[] convert(@NonNull Inquiry inquiry, @NonNull ContentValue<String> value, @NonNull Class<? extends Object[]> fieldType) throws IOException {
