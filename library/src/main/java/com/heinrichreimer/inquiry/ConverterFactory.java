@@ -44,6 +44,7 @@ class ConverterFactory {
         List<Converter> converters = new LinkedList<>();
         //References
         converters.add(new ReferenceConverter());
+        converters.add(new ReferenceArrayConverter());
         //Primitive arrays
         converters.add(new ByteArrayConverter());
         converters.add(new PrimitiveShortArrayConverter());
@@ -60,8 +61,6 @@ class ConverterFactory {
         converters.add(new BooleanArrayConverter());
         converters.add(new PrimitiveCharArrayConverter());
         converters.add(new CharArrayConverter());
-        //Reference arrays
-        converters.add(new ReferenceArrayConverter());
         return Collections.unmodifiableList(converters);
     }
 
