@@ -89,10 +89,34 @@ public final class Query<RowType, RunReturn> {
     }
 
     public Query<RowType, RunReturn> where(@NonNull String selection, @Nullable Object... selectionArgs) {
+        int args = Utils.countOccurrences(selection, '?');
+        if ((selectionArgs == null && args != 0) || (selectionArgs != null && selectionArgs.length != args))
+            throw new IllegalArgumentException("There must be exactly as many selection args as '?' characters in the selection string.");
         this.selection.add(selection);
         if (selectionArgs != null) {
             Collections.addAll(this.selectionArgs, selectionArgs);
         }
+        return this;
+    }
+
+    public Query<RowType, RunReturn> whereIn(@NonNull String column, @Nullable Object... selectionArgs) {
+        if (selectionArgs == null)
+            return this;
+
+        StringBuilder in = new StringBuilder();
+        in.append(column);
+        in.append(" IN (");
+        boolean first = true;
+        for (Object ignored : selectionArgs) {
+            if (first)
+                first = false;
+            else
+                in.append(",");
+            in.append("?");
+        }
+        in.append(")");
+        this.selection.add(in.toString());
+        Collections.addAll(this.selectionArgs, selectionArgs);
         return this;
     }
 
@@ -102,8 +126,8 @@ public final class Query<RowType, RunReturn> {
         return this;
     }
 
-    public Query<RowType, RunReturn> sort(@NonNull String... sortOrder) {
-        Collections.addAll(this.sortOrder, sortOrder);
+    public Query<RowType, RunReturn> sort(@NonNull String... columns) {
+        Collections.addAll(this.sortOrder, columns);
         return this;
     }
 
@@ -145,8 +169,8 @@ public final class Query<RowType, RunReturn> {
         return this;
     }
 
-    public Query<RowType, RunReturn> onlyUpdate(@NonNull String... values) {
-        onlyUpdate = values;
+    public Query<RowType, RunReturn> onlyUpdate(@NonNull String... columns) {
+        onlyUpdate = columns;
         return this;
     }
 
