@@ -15,8 +15,9 @@ import java.util.List;
 
 class DatabaseAdapter {
 
-    public static boolean isSQLPrimitive(@NonNull Class<?> type) {
-        return type == byte[].class ||
+    public static boolean isSQLPrimitive(@Nullable Class<?> type) {
+        return type == null ||
+                type == byte[].class ||
                 type == byte.class || type == Byte.class ||
                 type == short.class || type == Short.class ||
                 type == int.class || type == Integer.class ||
@@ -32,8 +33,8 @@ class DatabaseAdapter {
         return object == null || isSQLPrimitive(object.getClass());
     }
 
-    public static boolean isSQLPrimitive(@NonNull Field field) {
-        return isSQLPrimitive(field.getType());
+    public static boolean isSQLPrimitive(@Nullable Field field) {
+        return field == null || isSQLPrimitive(field.getType());
     }
 
     public static ContentValues save(@NonNull Inquiry inquiry, @NonNull List<Converter> converters, @NonNull Object object, @Nullable String[] projection) {
@@ -80,6 +81,12 @@ class DatabaseAdapter {
 
     private static boolean save(@NonNull Inquiry inquiry, @NonNull List<Converter> converters, @NonNull ContentValues contentValues, @NonNull String column, @Nullable Object object) {
         Class<?> type = object == null ? null : object.getClass();
+
+        if(type == null) {
+            contentValues.putNull(column);
+            return true;
+        }
+
         if (!isSQLPrimitive(object)) {
             for (Converter converter : converters) {
                 if (converter == null) continue;
@@ -159,7 +166,13 @@ class DatabaseAdapter {
     private static boolean load(@NonNull Inquiry inquiry, @NonNull List<Converter> converters, @NonNull Cursor cursor, @IntRange(from = 0) int column, @NonNull Object object, @NonNull Field field) {
         field.setAccessible(true);
         Class<?> type = field.getType();
+
         try {
+            if(type == null) {
+                field.set(object, null);
+                return true;
+            }
+
             if (isSQLPrimitive(field)) {
                 //We can load this directly
                 if (cursor.isNull(column)) {
