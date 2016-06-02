@@ -36,7 +36,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public final Cursor query(String[] projection, String selection,
-                              String[] selectionArgs, String sortOrder) {
+            String[] selectionArgs, String sortOrder) {
         return getReadableDatabase().query(table, projection, selection, selectionArgs, null, null, sortOrder);
     }
 

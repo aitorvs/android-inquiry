@@ -1,5 +1,5 @@
 package com.heinrichreimer.inquiry.callbacks;
 
-public interface RunCallback<RunReturn> {
-    void result(RunReturn changed);
+public interface RunCallback<Return> {
+    void result(Return result);
 }

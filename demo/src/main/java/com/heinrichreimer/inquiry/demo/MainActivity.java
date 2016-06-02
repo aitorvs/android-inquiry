@@ -1,7 +1,6 @@
 package com.heinrichreimer.inquiry.demo;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.heinrichreimer.inquiry.Inquiry;
-import com.heinrichreimer.inquiry.callbacks.GetCallback;
 import com.heinrichreimer.inquiry.callbacks.RunCallback;
 import com.heinrichreimer.inquiry.demo.model.Person;
 import com.heinrichreimer.inquiry.demo.model.SimplePerson;
@@ -71,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void reload() {
         inquiry.select(Person.class)
-                .all(new GetCallback<Person>() {
+                .all(new RunCallback<Person[]>() {
                     @Override
-                    public void result(@Nullable Person[] persons) {
+                    public void result(Person[] persons) {
                         Log.d(TAG, "Loaded persons: " + Arrays.toString(persons));
                         adapter.setPersons(persons);
                     }

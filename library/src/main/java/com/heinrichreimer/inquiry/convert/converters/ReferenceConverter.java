@@ -17,7 +17,7 @@ public class ReferenceConverter extends Converter<Object, Long> {
         long id = value.getContent() == null ? 0L : value.getContent();
         return inquiry
                 .select(fieldType)
-                .where("_id = ?", id)
+                .where(Inquiry.ID + " = ?", id)
                 .one();
     }
 
@@ -26,12 +26,12 @@ public class ReferenceConverter extends Converter<Object, Long> {
     public ContentValue<Long> convert(@NonNull Inquiry inquiry, @Nullable Object value) throws IOException {
         if (value == null)
             return ContentValue.valueOf((Long) null);
-        long id = -1;
         Long[] ids = inquiry
                 .insert(value.getClass())
                 .value(value)
                 .run();
-        if (ids != null && ids.length > 0)
+        long id = -1;
+        if (ids.length > 0)
             id = ids[0];
         return ContentValue.valueOf(id >= 0 ? id : null);
     }

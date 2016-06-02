@@ -1,6 +1,5 @@
 package com.heinrichreimer.inquiry;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.IntDef;
@@ -8,7 +7,6 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.heinrichreimer.inquiry.callbacks.GetCallback;
 import com.heinrichreimer.inquiry.callbacks.RunCallback;
 
 import java.lang.annotation.Retention;
@@ -60,29 +58,31 @@ public final class Query<RowType, RunReturn> {
                 DatabaseSchemaParser.getClassSchema(inquiry.getConverters(), rowType), inquiry.databaseVersion);
     }
 
-    @SuppressLint("DefaultLocale")
     public Query<RowType, RunReturn> atPosition(@IntRange(from = 0, to = Integer.MAX_VALUE) int position) {
         Cursor cursor = database.query(null, getSelection(), getSelectionArgs(), null);
         if (cursor != null) {
             if (position < 0 || position >= cursor.getCount()) {
                 cursor.close();
-                throw new IndexOutOfBoundsException(String.format("Position %d is out of bounds for cursor of size %d.",
+                throw new IndexOutOfBoundsException(String.format(Locale.getDefault(),
+                        "Position %d is out of bounds for cursor of size %d.",
                         position, cursor.getCount()));
             }
             if (!cursor.moveToPosition(position)) {
                 cursor.close();
-                throw new IllegalStateException(String.format("Unable to move to position %d in cursor of size %d.",
+                throw new IllegalStateException(String.format(Locale.getDefault(),
+                        "Unable to move to position %d in cursor of size %d.",
                         position, cursor.getCount()));
             }
-            final int idIndex = cursor.getColumnIndex("_id");
+            int idIndex = cursor.getColumnIndex(Inquiry.ID);
             if (idIndex < 0) {
                 cursor.close();
-                throw new IllegalStateException("Didn't find a column named _id in this Cursor.");
+                throw new IllegalStateException("Didn't find a column named " +
+                        Inquiry.ID + " in this Cursor.");
             }
-            final int idValue = cursor.getInt(idIndex);
+            long idValue = cursor.getLong(idIndex);
             selection.clear();
             selectionArgs.clear();
-            where("_id = ?", idValue);
+            where(Inquiry.ID + " = ?", idValue);
             cursor.close();
         }
         return this;
@@ -90,8 +90,10 @@ public final class Query<RowType, RunReturn> {
 
     public Query<RowType, RunReturn> where(@NonNull String selection, @Nullable Object... selectionArgs) {
         int args = Utils.countOccurrences(selection, '?');
-        if ((selectionArgs == null && args != 0) || (selectionArgs != null && selectionArgs.length != args))
-            throw new IllegalArgumentException("There must be exactly as many selection args as '?' characters in the selection string.");
+        if ((selectionArgs == null && args != 0) ||
+                (selectionArgs != null && selectionArgs.length != args))
+            throw new IllegalArgumentException("There must be exactly as many selection args as " +
+                    "'?' characters in the selection string.");
         this.selection.add(selection);
         if (selectionArgs != null) {
             Collections.addAll(this.selectionArgs, selectionArgs);
@@ -174,40 +176,6 @@ public final class Query<RowType, RunReturn> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    @Nullable
-    private RowType[] getInternal() {
-        if (inquiry.context == null)
-            return null;
-        final String[] projection = DatabaseSchemaParser.generateProjection(rowType);
-        if (queryType == SELECT) {
-            StringBuilder sort = new StringBuilder();
-            sort.append(getSortOrder());
-            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
-            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
-            Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
-            if (cursor != null) {
-                RowType[] results = null;
-                if (cursor.getCount() > 0) {
-                    results = (RowType[]) Array.newInstance(rowType, cursor.getCount());
-                    int index = 0;
-                    while (cursor.moveToNext()) {
-                        results[index] = DatabaseAdapter.load(inquiry, inquiry.getConverters(), cursor, rowType);
-                        index++;
-                    }
-                }
-                cursor.close();
-                database.close();
-                return results;
-            }
-        }
-        else {
-            throw new UnsupportedOperationException("one() and all() can only be used with Inquiry.select().");
-        }
-        database.close();
-        return null;
-    }
-
     @Nullable
     public RowType one() {
         int tempLimit = limit;
@@ -219,12 +187,28 @@ public final class Query<RowType, RunReturn> {
         return results[0];
     }
 
-    @Nullable
+    public void one(@NonNull final RunCallback<RowType> callback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final RowType results = one();
+                if (inquiry.handler == null) return;
+                inquiry.handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.result(results);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    @NonNull
     public RowType[] all() {
         return getInternal();
     }
 
-    public void all(@NonNull final GetCallback<RowType> callback) {
+    public void all(@NonNull final RunCallback<RowType[]> callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -240,19 +224,30 @@ public final class Query<RowType, RunReturn> {
         }).start();
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     public RunReturn run() {
-        if (queryType != DELETE && (values == null || values.length == 0))
-            throw new IllegalStateException("No values were provided for this query to run.");
-        else if (inquiry.context == null) {
-            try {
-                return (RunReturn) (Integer) 0;
-            } catch (Throwable t) {
-                return (RunReturn) (Long) 0L;
+        if (!inquiry.isAlive()) {
+            switch (queryType) {
+                case SELECT:
+                    return (RunReturn) new Long[0];
+                case INSERT:
+                    return (RunReturn) new Long[0];
+                case REPLACE:
+                    return (RunReturn) new Long[0];
+                case UPDATE:
+                    return (RunReturn) (Integer) 0;
+                case DELETE:
+                    return (RunReturn) (Integer) 0;
             }
         }
         switch (queryType) {
+            case SELECT:
+                return (RunReturn) getIdsInternal();
             case INSERT:
+                if (values == null || values.length == 0) {
+                    throw new IllegalStateException("No values were provided for this query to run.");
+                }
                 Long[] insertedIds = new Long[values.length];
                 for (int i = 0; i < values.length; i++) {
                     ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[i], null);
@@ -261,6 +256,9 @@ public final class Query<RowType, RunReturn> {
                 database.close();
                 return (RunReturn) insertedIds;
             case REPLACE:
+                if (values == null || values.length == 0) {
+                    throw new IllegalStateException("No values were provided for this query to run.");
+                }
                 Long[] replacedIds = new Long[values.length];
                 for (int i = 0; i < values.length; i++) {
                     ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[i], null);
@@ -268,20 +266,21 @@ public final class Query<RowType, RunReturn> {
                 }
                 database.close();
                 return (RunReturn) replacedIds;
-            case UPDATE: {
+            case UPDATE:
+                if (values == null || values.length == 0) {
+                    throw new IllegalStateException("No values were provided for this query to run.");
+                }
                 ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[values.length - 1], onlyUpdate);
-                RunReturn value = (RunReturn) (Integer) database.update(contentValues, getSelection(), getSelectionArgs());
+                RunReturn updatedRows = (RunReturn) (Integer) database.update(contentValues, getSelection(), getSelectionArgs());
                 database.close();
-                return value;
-            }
+                return updatedRows;
             case DELETE: {
                 RunReturn value = (RunReturn) (Integer) database.delete(getSelection(), getSelectionArgs());
                 database.close();
                 return value;
             }
-            case SELECT:
             default:
-                throw new UnsupportedOperationException("run() can only be used with Inquiry.insert(), Inquiry.update() or Inquiry.delete().");
+                throw new UnsupportedOperationException();
         }
     }
 
@@ -299,6 +298,72 @@ public final class Query<RowType, RunReturn> {
                 });
             }
         }).start();
+    }
+
+    @SuppressWarnings("unchecked")
+    private RowType[] getInternal() {
+        if (!inquiry.isAlive())
+            return (RowType[]) Array.newInstance(rowType, 0);
+        if (queryType != SELECT) {
+            throw new UnsupportedOperationException("one() and all() can only be used with Inquiry.select().");
+        }
+        else {
+            String[] projection = DatabaseSchemaParser.generateProjection(rowType);
+
+            StringBuilder sort = new StringBuilder();
+            sort.append(getSortOrder());
+            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
+            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+
+            Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
+            if (cursor == null)
+                return (RowType[]) Array.newInstance(rowType, 0);
+
+            RowType[] results = (RowType[]) Array.newInstance(rowType, cursor.getCount());
+            if (cursor.getCount() > 0) {
+                int index = 0;
+                while (cursor.moveToNext()) {
+                    results[index] = DatabaseAdapter.load(inquiry, inquiry.getConverters(), cursor, rowType);
+                    index++;
+                }
+            }
+            cursor.close();
+            database.close();
+            return results;
+        }
+    }
+
+    private Long[] getIdsInternal() {
+        if (!inquiry.isAlive())
+            return new Long[0];
+        if (queryType != SELECT) {
+            throw new UnsupportedOperationException("one() and all() can only be used with Inquiry.select().");
+        }
+        else {
+            StringBuilder sort = new StringBuilder();
+            sort.append(getSortOrder());
+            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
+            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+
+            Cursor cursor = database.query(new String[]{Inquiry.ID}, getSelection(), getSelectionArgs(), sort.toString());
+            if (cursor == null)
+                return new Long[0];
+
+            Long[] results = new Long[cursor.getCount()];
+            if (cursor.getCount() > 0) {
+                for (int i = 0; cursor.moveToNext(); i++) {
+                    int idIndex = cursor.getColumnIndex(Inquiry.ID);
+                    if (idIndex < 0) {
+                        cursor.close();
+                        throw new IllegalStateException("Didn't find a column named " + Inquiry.ID + " in this Cursor.");
+                    }
+                    results[i] = cursor.getLong(idIndex);
+                }
+            }
+            cursor.close();
+            database.close();
+            return results;
+        }
     }
 
     private String getSelection() {

@@ -31,15 +31,14 @@ public class ReferenceArrrayConverter extends Converter<Object[], String> {
                 first = false;
             else
                 where.append(" OR ");
-            where.append("_id = ?");
+            where.append(Inquiry.ID);
+            where.append(" = ?");
         }
 
         Object[] unordered = inquiry
                 .select(fieldType.getComponentType())
                 .where(where.toString(), ids)
                 .all();
-
-        if (unordered == null) return null;
 
         Object[] ordered = new Object[unordered.length];
         int i = 0;

@@ -14,6 +14,8 @@ import java.util.List;
 
 public final class Inquiry {
 
+    public static final String ID = "_id";
+
     static final String DEBUG_TAG = "Inquiry";
 
     private static Inquiry inquiry;
@@ -44,6 +46,10 @@ public final class Inquiry {
         handler = null;
         databaseName = null;
         databaseVersion = 0;
+    }
+
+    public boolean isAlive() {
+        return context != null && handler != null && databaseName != null && databaseVersion > 0;
     }
 
     public static void deinit() {
@@ -83,7 +89,7 @@ public final class Inquiry {
     }
 
     @NonNull
-    public <RowType> Query<RowType, Integer> select(@NonNull Class<RowType> rowType) {
+    public <RowType> Query<RowType, Long[]> select(@NonNull Class<RowType> rowType) {
         return new Query<>(this, Query.SELECT, rowType);
     }
 
