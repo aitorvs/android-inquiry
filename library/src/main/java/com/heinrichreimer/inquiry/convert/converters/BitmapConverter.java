@@ -14,6 +14,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 public class BitmapConverter extends Converter<Bitmap, byte[]> {
+    @Nullable
     @Override
     public Bitmap convert(@NonNull Inquiry inquiry, @NonNull ContentValue<byte[]> value, @NonNull Class<? extends Bitmap> fieldType) throws IOException {
         byte[] blob = value.getContent();
@@ -26,13 +27,13 @@ public class BitmapConverter extends Converter<Bitmap, byte[]> {
 
     @NonNull
     @Override
-    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @NonNull Bitmap value) throws IOException {
-        return ContentValue.valueOf(bitmapToBytes(value));
+    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @Nullable Bitmap value) throws IOException {
+        return ContentValue.valueOf(value == null ? null : bitmapToBytes(value));
     }
 
     @NonNull
     @Override
-    public Class<? extends Bitmap> getInputType() {
+    public Class<Bitmap> getInputType() {
         return Bitmap.class;
     }
 
@@ -43,7 +44,7 @@ public class BitmapConverter extends Converter<Bitmap, byte[]> {
     }
 
 
-    private static byte[] bitmapToBytes(Bitmap bitmap) {
+    private static byte[] bitmapToBytes(@NonNull Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);

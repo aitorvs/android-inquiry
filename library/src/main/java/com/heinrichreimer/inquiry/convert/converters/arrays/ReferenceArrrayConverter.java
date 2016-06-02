@@ -1,6 +1,7 @@
 package com.heinrichreimer.inquiry.convert.converters.arrays;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.heinrichreimer.inquiry.ContentValue;
 import com.heinrichreimer.inquiry.Inquiry;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ReferenceArrrayConverter extends Converter<Object[], String> {
+    @Nullable
     @Override
     public Object[] convert(@NonNull Inquiry inquiry, @NonNull ContentValue<String> value, @NonNull Class<? extends Object[]> fieldType) throws IOException {
         if (value.getContent() == null) return null;
@@ -52,8 +54,9 @@ public class ReferenceArrrayConverter extends Converter<Object[], String> {
     @SuppressWarnings("unchecked")
     @NonNull
     @Override
-    public ContentValue<String> convert(@NonNull Inquiry inquiry, @NonNull Object[] value) throws IOException {
-        if (value.length == 0) return ContentValue.valueOf((String) null);
+    public ContentValue<String> convert(@NonNull Inquiry inquiry, @Nullable Object[] value) throws IOException {
+        if (value == null || value.length == 0)
+            return ContentValue.valueOf((String) null);
 
         Class componentType = value.getClass().getComponentType();
         Query<Object, Long[]> query = inquiry.insert(componentType);
@@ -74,7 +77,7 @@ public class ReferenceArrrayConverter extends Converter<Object[], String> {
 
     @NonNull
     @Override
-    public Class<? extends Object[]> getInputType() {
+    public Class<Object[]> getInputType() {
         return Object[].class;
     }
 

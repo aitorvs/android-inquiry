@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 public class SerializableConverter extends Converter<Serializable, byte[]> {
+    @Nullable
     @Override
     public Serializable convert(@NonNull Inquiry inquiry, @NonNull ContentValue<byte[]> value, @NonNull Class<? extends Serializable> fieldType) throws IOException {
         try {
@@ -30,13 +31,13 @@ public class SerializableConverter extends Converter<Serializable, byte[]> {
 
     @NonNull
     @Override
-    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @NonNull Serializable value) throws IOException {
-        return ContentValue.valueOf(serializeObject(value));
+    public ContentValue<byte[]> convert(@NonNull Inquiry inquiry, @Nullable Serializable value) throws IOException {
+        return ContentValue.valueOf(value == null ? null : serializeObject(value));
     }
 
     @NonNull
     @Override
-    public Class<? extends Serializable> getInputType() {
+    public Class<Serializable> getInputType() {
         return Serializable.class;
     }
 
