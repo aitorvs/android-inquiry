@@ -11,43 +11,43 @@ public class ContentValue<S> {
         // representations before.
     }
 
-    public static ContentValue<byte[]> valueOf(byte[] content) {
+    public static ContentValue<byte[]> valueOf(@Nullable byte[] content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Byte> valueOf(Byte content) {
+    public static ContentValue<Byte> valueOf(@Nullable Byte content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Short> valueOf(Short content) {
+    public static ContentValue<Short> valueOf(@Nullable Short content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Integer> valueOf(Integer content) {
+    public static ContentValue<Integer> valueOf(@Nullable Integer content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Long> valueOf(Long content) {
+    public static ContentValue<Long> valueOf(@Nullable Long content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Float> valueOf(Float content) {
+    public static ContentValue<Float> valueOf(@Nullable Float content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Double> valueOf(Double content) {
+    public static ContentValue<Double> valueOf(@Nullable Double content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Boolean> valueOf(Boolean content) {
+    public static ContentValue<Boolean> valueOf(@Nullable Boolean content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<Character> valueOf(Character content) {
+    public static ContentValue<Character> valueOf(@Nullable Character content) {
         return new ContentValue<>(content);
     }
 
-    public static ContentValue<String> valueOf(String content) {
+    public static ContentValue<String> valueOf(@Nullable String content) {
         return new ContentValue<>(content);
     }
 
