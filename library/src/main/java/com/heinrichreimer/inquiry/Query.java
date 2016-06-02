@@ -46,6 +46,7 @@ public final class Query<RowType, RunReturn> {
     private final List<Object> selectionArgs = new LinkedList<>();
     private final List<String> sortOrder = new LinkedList<>();
     private int limit;
+    private int offset;
     private RowType[] values;
 
     Query(@NonNull Inquiry inquiry, @QueryType int type, @NonNull Class<RowType> rowType) {
@@ -95,7 +96,7 @@ public final class Query<RowType, RunReturn> {
         return this;
     }
 
-    public Query<RowType, RunReturn> everywhere() {
+    public Query<RowType, RunReturn> clearWhere() {
         selection.clear();
         selectionArgs.clear();
         return this;
@@ -106,13 +107,28 @@ public final class Query<RowType, RunReturn> {
         return this;
     }
 
-    public Query<RowType, RunReturn> unsort() {
+    public Query<RowType, RunReturn> clearSort() {
         sortOrder.clear();
         return this;
     }
 
     public Query<RowType, RunReturn> limit(int limit) {
         this.limit = limit;
+        return this;
+    }
+
+    public Query<RowType, RunReturn> clearLimit() {
+        this.limit = -1;
+        return this;
+    }
+
+    public Query<RowType, RunReturn> offset(int offset) {
+        this.offset = offset;
+        return this;
+    }
+
+    public Query<RowType, RunReturn> clearOffset(int offset) {
+        this.offset = offset;
         return this;
     }
 
@@ -136,14 +152,15 @@ public final class Query<RowType, RunReturn> {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    private RowType[] getInternal(int limit) {
+    private RowType[] getInternal() {
         if (inquiry.context == null)
             return null;
         final String[] projection = DatabaseSchemaParser.generateProjection(rowType);
         if (queryType == SELECT) {
-            String sort = getSortOrder();
-            if (limit > -1) sort += String.format(Locale.getDefault(), " LIMIT %d", limit);
-            Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort);
+            StringBuilder sort = new StringBuilder(getSortOrder());
+            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
+            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+            Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
             if (cursor != null) {
                 RowType[] results = null;
                 if (cursor.getCount() > 0) {
@@ -168,7 +185,10 @@ public final class Query<RowType, RunReturn> {
 
     @Nullable
     public RowType one() {
-        RowType[] results = getInternal(1);
+        int tempLimit = limit;
+        limit = 1;
+        RowType[] results = getInternal();
+        limit = tempLimit;
         if (results == null || results.length == 0)
             return null;
         return results[0];
@@ -176,7 +196,7 @@ public final class Query<RowType, RunReturn> {
 
     @Nullable
     public RowType[] all() {
-        return getInternal(limit > 0 ? limit : -1);
+        return getInternal();
     }
 
     public void all(@NonNull final GetCallback<RowType> callback) {
