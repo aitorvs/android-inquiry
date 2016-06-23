@@ -29,7 +29,7 @@ allprojects {
 Module `build.gradle`
 ```gradle
 dependencies {
-    compile 'com.heinrichreimersoftware:android-inquiry:3.0.3-beta'
+    compile 'com.heinrichreimersoftware:android-inquiry:3.0.4'
 }
 ```
 
