@@ -1,7 +1,7 @@
-# Inquiry
+# android-inquiry
 
 [![jitpack.io](https://www.jitpack.io/v/com.heinrichreimersoftware/inquiry.svg)](https://www.jitpack.io/#com.heinrichreimersoftware/inquiry)
-[![Build Status](https://travis-ci.org/HeinrichReimer/inquiry.svg?branch=master)](https://travis-ci.org/HeinrichReimer/inquiry)
+[![Build Status](https://travis-ci.org/HeinrichReimer/android-inquiry.svg?branch=master)](https://travis-ci.org/HeinrichReimer/android-inquiry)
 [![Apache License 2.0](https://img.shields.io/github/license/HeinrichReimer/material-intro.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 *This is a forked and improved version of [Aidan Follestad's](https://github.com/afollestad) awesome library [Inquiry](https://github.com/afollestad/inquiry).  
@@ -13,7 +13,7 @@ Read and write class objects from tables in a database and supports deep object 
 
 ## Dependency
 
-*Inquiry* is available on [**jitpack.io**](https://www.jitpack.io/#com.heinrichreimersoftware/inquiry)
+*Inquiry* is available on [**jitpack.io**](https://www.jitpack.io/#com.heinrichreimersoftware/android-inquiry)
 
 ### Gradle dependency:
 
@@ -29,7 +29,7 @@ allprojects {
 Module `build.gradle`
 ```gradle
 dependencies {
-    compile 'com.heinrichreimersoftware:inquiry:3.0.3-beta'
+    compile 'com.heinrichreimersoftware:android-inquiry:3.0.3-beta'
 }
 ```
 
