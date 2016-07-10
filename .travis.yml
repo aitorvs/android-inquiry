@@ -1,21 +1,15 @@
 language: android
 android:
   components:
-    # Android SDK Tools
-    - tools
-
-    # Build tools version used by your project
-    - build-tools-23.0.3
-
-    # SDK version used to compile your project
-    - android-23
-
-    # Additional components
-    - extra-android-support
-    - extra-google-m2repository
-    - extra-android-m2repository
-
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    #- sys-img-armeabi-v7a-android-19
-    #- sys-img-x86-android-17
+  - tools
+  - platform-tools
+  - build-tools-24.0.0
+  - android-24
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
+jdk:
+- oraclejdk8
+notifications:
+  slack:
+    secure: iu8rifGYOQu6CP/7rfZquKZ1MTlsjSA0s2nJSPVXwjWDLpqDdMdTRNujT6Wbsw9xSJC1sjNEak9JJFlcPAeygynVN7y8zWZ0KqiY8kRRdtM24mtR8H8TbmToGpWRHG28SQgWdRg1kWje8N2eGYYDJPjUHxHZuFLpnRpycj1jYCLZiRL5JcajglkMnOI0GTgvTz91VJpYYFed9PPkk8ojxM53Q0gCAx5ghoTzP2atw03Admr/L+HbwHsBN9yRazbGFq3pZ2raQk6d9lJ9sPNqogifmFmqtP+WjchhCspIqhYCqwW9YuUg4O02nRKrcanzBl8tljJgXW0hiumbNXqZfHNw8JF7sFa3BQVZJBVNcLSrXBV0tfZjxRJq3EzWto+16ZcGGVCOSO9tZm/FpLA74VgnHGUWcdGRqLEFwA0O6aMTVsGCZXSD3aiX1emG2B9f5nAUv0kvjgsuEHpkoKo9zHOgdJ2luLVxEs5r/yIdMxu2u4f21pYaTc7MILlV9fmGfxFybmoceO2bOFoCTnl36M9+Qss3V0Vc4//LxTB/YgnWkX0Eqmi3prTpVSMsRq5who0DDhQE773PoMvjgi9pnfiazN3hGpfHQ61F5tHLLaKI9sM3vdymHa8QYzOwmVSEMTorZ1zmYaRaIwCdBKgA+jVfHCYUGC4y6mQ+aKePa/A=
