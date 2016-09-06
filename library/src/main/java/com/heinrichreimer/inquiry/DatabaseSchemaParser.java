@@ -135,6 +135,8 @@ class DatabaseSchemaParser {
         schema.append(getColumnName(field));
         schema.append(" ");
         schema.append(getClassTypeString(converters, field.getType()));
+        if (annotation.primaryKey())
+            schema.append(" PRIMARY KEY");
         if (annotation.unique())
             schema.append(" UNIQUE");
         if (annotation.autoIncrement())
@@ -142,6 +144,29 @@ class DatabaseSchemaParser {
         if (annotation.notNull())
             schema.append(" NOT NULL");
         return schema.toString();
+    }
+
+    @Nullable
+    public static List<String> alterDatabase(@NonNull List<Converter> converters, @NonNull Class<?> type, int oldVersion, int newVersion) {
+        ArrayList<String> alterList = new ArrayList<>();
+        List<Field> fields = getAllFields(type);
+        for (Field field : fields) {
+            String fieldSchema = getFieldSchema(converters, field);
+            if (fieldSchema != null) {
+                StringBuilder schema = new StringBuilder();
+                int fieldVersion = field.getAnnotation(Column.class).version();
+                if (fieldVersion > oldVersion && fieldVersion <= newVersion) {
+                    schema.append("ALTER TABLE ").append(getTableName(type)).append(" ADD COLUMN ").append(fieldSchema);
+                    alterList.add(schema.toString());
+                }
+            }
+        }
+
+        if (alterList.size() == 0) {
+            // nothing to alter
+            return null;
+        }
+        return alterList;
     }
 
     @NonNull
@@ -161,7 +186,6 @@ class DatabaseSchemaParser {
         }
         if (schema.length() == 0)
             throw new IllegalStateException("Class " + type.getName() + " has no column fields.");
-        schema.append(", " + Inquiry.ID + " INTEGER PRIMARY KEY AUTOINCREMENT");
         if (BuildConfig.DEBUG)
             Log.d(Inquiry.DEBUG_TAG, String.format("Schema for %s: %s", type.getSimpleName(), schema.toString()));
         return schema.toString();

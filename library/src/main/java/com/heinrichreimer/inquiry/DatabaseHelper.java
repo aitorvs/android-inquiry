@@ -5,16 +5,29 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.heinrichreimer.inquiry.callbacks.UpgradeCallback;
+
 class DatabaseHelper extends SQLiteOpenHelper {
 
     private final String table;
+    private final UpgradeCallback mOnUpgradeCallback;
 
-    public DatabaseHelper(Context context, String databaseName, @NonNull String table, @Nullable String columns, int version) {
+    public DatabaseHelper(
+            Context context,
+            String databaseName,
+            @NonNull String table,
+            @Nullable String columns,
+            @IntRange(from = 1, to = Integer.MAX_VALUE) int version,
+            @Nullable UpgradeCallback upgradeCallback) {
+
         super(context, databaseName, null, version);
+
+        mOnUpgradeCallback = upgradeCallback;
         this.table = table;
         if (columns != null) {
             getWritableDatabase(); //This will invoke onUpgrade if necessary
@@ -29,10 +42,16 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (BuildConfig.DEBUG)
-            Log.w(Inquiry.DEBUG_TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-        dropTable(db);
-        onCreate(db);
+        if (mOnUpgradeCallback != null) {
+            // OK, somebody will take care of this
+            mOnUpgradeCallback.onUpgrade(db, oldVersion, newVersion);
+        } else {
+            // default behavior when no handler is register is to drop the database
+            if (BuildConfig.DEBUG)
+                Log.w(Inquiry.DEBUG_TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
+            dropTable(db);
+            onCreate(db);
+        }
     }
 
     public final Cursor query(String[] projection, String selection,
@@ -42,6 +61,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     public final long insert(ContentValues values) {
         return getWritableDatabase().insert(table, null, values);
+    }
+
+    public final long insertOrIgnore(ContentValues values) {
+        return getWritableDatabase().insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     public final long replace(ContentValues values) {
