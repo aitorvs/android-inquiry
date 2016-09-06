@@ -312,8 +312,8 @@ public final class Query<RowType, RunReturn> {
 
             StringBuilder sort = new StringBuilder();
             sort.append(getSortOrder());
-            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
-            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+            if (limit > 0) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
+            if (offset > 0) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
 
             Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
             if (cursor == null)
@@ -342,8 +342,8 @@ public final class Query<RowType, RunReturn> {
         else {
             StringBuilder sort = new StringBuilder();
             sort.append(getSortOrder());
-            if (limit > -1) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
-            if (offset > -1) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+            if (limit > 0) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
+            if (offset > 0) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
 
             Cursor cursor = database.query(new String[]{Inquiry.ID}, getSelection(), getSelectionArgs(), sort.toString());
             if (cursor == null)
