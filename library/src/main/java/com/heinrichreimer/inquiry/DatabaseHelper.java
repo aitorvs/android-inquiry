@@ -44,6 +44,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(table, null, values);
     }
 
+    public final long insertOrIgnore(ContentValues values) {
+        return getWritableDatabase().insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
     public final long replace(ContentValues values) {
         return getWritableDatabase().replace(table, null, values);
     }
