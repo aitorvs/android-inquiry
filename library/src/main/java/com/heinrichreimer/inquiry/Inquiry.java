@@ -26,8 +26,10 @@ public final class Inquiry {
     int databaseVersion = 1;
     private final List<Converter> converters = new LinkedList<>();
 
-    public Inquiry(@NonNull Context context, @Nullable String databaseName,
-            @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
+    public Inquiry(@NonNull Context context,
+                   @Nullable String databaseName,
+                   @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
+
         handler = new Handler();
         this.context = context;
         this.databaseName = databaseName;
@@ -83,7 +85,7 @@ public final class Inquiry {
             throw new UnsupportedOperationException("Unable to drop table for type " + type.getSimpleName());
 
         String table = DatabaseSchemaParser.getTableName(type);
-        DatabaseHelper database = new DatabaseHelper(context, databaseName, table, null, databaseVersion);
+        DatabaseHelper database = new DatabaseHelper(context, databaseName, table, null, databaseVersion, /* onUpgrade */ null);
         database.dropTable();
         database.close();
     }

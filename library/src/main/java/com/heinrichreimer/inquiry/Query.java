@@ -2,12 +2,15 @@ package com.heinrichreimer.inquiry;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.heinrichreimer.inquiry.callbacks.RunCallback;
+import com.heinrichreimer.inquiry.callbacks.UpgradeCallback;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -17,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-public final class Query<RowType, RunReturn> {
+public final class Query<RowType, RunReturn> implements UpgradeCallback {
 
     @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE, INSERT_OR_IGNORE})
     @Retention(RetentionPolicy.SOURCE)
@@ -56,7 +59,25 @@ public final class Query<RowType, RunReturn> {
             throw new IllegalStateException("Inquiry was not initialized with a database name, it can only use content providers in this configuration.");
         database = new DatabaseHelper(inquiry.context, inquiry.databaseName,
                 DatabaseSchemaParser.getTableName(rowType),
-                DatabaseSchemaParser.getClassSchema(inquiry.getConverters(), rowType), inquiry.databaseVersion);
+                DatabaseSchemaParser.getClassSchema(inquiry.getConverters(), rowType)
+                , inquiry.databaseVersion, /* onUpgrade */ this);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        List<String> queryList = DatabaseSchemaParser.alterDatabase(inquiry.getConverters(), rowType, oldVersion, newVersion);
+        if (queryList == null) {
+            // onUpgrade without new fields?...re-create to be safe.
+            Log.e(Inquiry.DEBUG_TAG, "onUpgrade: No new COLUMN to be added...O_o...re-creating db");
+            database.dropTable();
+            database.onCreate(db);
+        } else {
+            for (String query : queryList) {
+                if(BuildConfig.DEBUG)
+                    Log.d(Inquiry.DEBUG_TAG, "onUpgrade: " + query);
+                db.execSQL(query);
+            }
+        }
     }
 
     public Query<RowType, RunReturn> atPosition(@IntRange(from = 0, to = Integer.MAX_VALUE) int position) {
