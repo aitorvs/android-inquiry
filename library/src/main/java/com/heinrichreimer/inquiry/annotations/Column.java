@@ -14,4 +14,5 @@ public @interface Column {
     boolean unique() default false;
     boolean autoIncrement() default false;
     boolean notNull() default false;
+    int version() default 1; // database version
 }

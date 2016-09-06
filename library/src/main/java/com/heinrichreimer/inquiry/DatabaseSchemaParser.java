@@ -144,6 +144,29 @@ class DatabaseSchemaParser {
         return schema.toString();
     }
 
+    @Nullable
+    public static List<String> alterDatabase(@NonNull List<Converter> converters, @NonNull Class<?> type, int oldVersion, int newVersion) {
+        ArrayList<String> alterList = new ArrayList<>();
+        List<Field> fields = getAllFields(type);
+        for (Field field : fields) {
+            String fieldSchema = getFieldSchema(converters, field);
+            if (fieldSchema != null) {
+                StringBuilder schema = new StringBuilder();
+                int fieldVersion = field.getAnnotation(Column.class).version();
+                if (fieldVersion > oldVersion && fieldVersion <= newVersion) {
+                    schema.append("ALTER TABLE ").append(getTableName(type)).append(" ADD COLUMN ").append(fieldSchema);
+                    alterList.add(schema.toString());
+                }
+            }
+        }
+
+        if (alterList.size() == 0) {
+            // nothing to alter
+            return null;
+        }
+        return alterList;
+    }
+
     @NonNull
     public static String getClassSchema(@NonNull List<Converter> converters, @NonNull Class<?> type) {
         StringBuilder schema = new StringBuilder();
