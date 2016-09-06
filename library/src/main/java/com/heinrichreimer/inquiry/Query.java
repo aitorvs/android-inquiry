@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public final class Query<RowType, RunReturn> {
 
-    @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE})
+    @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE, INSERT_OR_IGNORE})
     @Retention(RetentionPolicy.SOURCE)
     @interface QueryType {
     }
@@ -29,6 +29,7 @@ public final class Query<RowType, RunReturn> {
     final static int REPLACE = 3;
     final static int UPDATE = 4;
     final static int DELETE = 5;
+    final static int INSERT_OR_IGNORE = 6;
 
     @NonNull
     private final Inquiry inquiry;
@@ -231,6 +232,8 @@ public final class Query<RowType, RunReturn> {
             switch (queryType) {
                 case SELECT:
                     return (RunReturn) new Long[0];
+                case INSERT_OR_IGNORE:
+                    return (RunReturn) new Long[0];
                 case INSERT:
                     return (RunReturn) new Long[0];
                 case REPLACE:
@@ -244,6 +247,7 @@ public final class Query<RowType, RunReturn> {
         switch (queryType) {
             case SELECT:
                 return (RunReturn) getIdsInternal();
+            case INSERT_OR_IGNORE:
             case INSERT:
                 if (values == null || values.length == 0) {
                     throw new IllegalStateException("No values were provided for this query to run.");
@@ -251,7 +255,9 @@ public final class Query<RowType, RunReturn> {
                 Long[] insertedIds = new Long[values.length];
                 for (int i = 0; i < values.length; i++) {
                     ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[i], null);
-                    insertedIds[i] = database.insert(contentValues);
+                    insertedIds[i] = (queryType == INSERT) ?
+                            database.insert(contentValues) :
+                            database.insertOrIgnore(contentValues);
                 }
                 database.close();
                 return (RunReturn) insertedIds;

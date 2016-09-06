@@ -36,7 +36,7 @@ public final class Inquiry {
 
     @NonNull
     public static Inquiry init(@NonNull Context context, @Nullable String databaseName,
-            @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
+                               @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
         inquiry = new Inquiry(context, databaseName, databaseVersion);
         return inquiry;
     }
@@ -96,6 +96,11 @@ public final class Inquiry {
     @NonNull
     public <RowType> Query<RowType, Long[]> insert(@NonNull Class<RowType> rowType) {
         return new Query<>(this, Query.INSERT, rowType);
+    }
+
+    @NonNull
+    public <RowType> Query<RowType, Long[]> insertOrIgnore(@NonNull Class<RowType> rowType) {
+        return new Query<>(this, Query.INSERT_OR_IGNORE, rowType);
     }
 
     @NonNull
