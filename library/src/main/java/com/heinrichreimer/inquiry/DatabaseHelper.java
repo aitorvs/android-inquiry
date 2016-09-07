@@ -63,6 +63,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(table, null, values);
     }
 
+    public final long insertWithOnConflict(ContentValues values, int conflictAlgorithm) {
+        return getWritableDatabase().insertWithOnConflict(table, null, values, conflictAlgorithm);
+    }
+
     public final long insertOrIgnore(ContentValues values) {
         return getWritableDatabase().insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
@@ -78,6 +82,10 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     public final int update(ContentValues values, String selection, String[] selectionArgs) {
         return getWritableDatabase().update(table, values, selection, selectionArgs);
+    }
+
+    public final int updateWithOnConflict(ContentValues values, String selection, String[] selectionArgs, int conflictAlgorithm) {
+        return getWritableDatabase().updateWithOnConflict(table, values, selection, selectionArgs, conflictAlgorithm);
     }
 
     public final void dropTable() {

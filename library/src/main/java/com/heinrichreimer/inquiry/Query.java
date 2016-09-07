@@ -22,7 +22,7 @@ import java.util.Locale;
 
 public final class Query<RowType, RunReturn> implements UpgradeCallback {
 
-    @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE, INSERT_OR_IGNORE})
+    @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE, INSERT_OR_IGNORE, INSERT_WITH_CONFLICT, UPDATE_WITH_CONFLICT})
     @Retention(RetentionPolicy.SOURCE)
     @interface QueryType {
     }
@@ -33,6 +33,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     final static int UPDATE = 4;
     final static int DELETE = 5;
     final static int INSERT_OR_IGNORE = 6;
+    final static int INSERT_WITH_CONFLICT = 7;
+    final static int UPDATE_WITH_CONFLICT = 8;
 
     @NonNull
     private final Inquiry inquiry;
@@ -50,6 +52,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     private int limit;
     private int offset;
     private RowType[] values;
+    @Inquiry.ConflictAlgorithm
+    private int conflict = Inquiry.CONFLICT_NONE;
 
     Query(@NonNull Inquiry inquiry, @QueryType int type, @NonNull Class<RowType> rowType) {
         this.inquiry = inquiry;
@@ -198,6 +202,16 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
         return this;
     }
 
+    public Query<RowType, RunReturn> conflict(@Inquiry.ConflictAlgorithm int conflictAlgorithm) {
+        this.conflict = conflictAlgorithm;
+        return this;
+    }
+
+    public Query<RowType, RunReturn> clearConflict() {
+        this.conflict = Inquiry.CONFLICT_NONE;
+        return this;
+    }
+
     @Nullable
     public RowType one() {
         int tempLimit = limit;
@@ -268,6 +282,7 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
         switch (queryType) {
             case SELECT:
                 return (RunReturn) getIdsInternal();
+            case INSERT_WITH_CONFLICT:
             case INSERT_OR_IGNORE:
             case INSERT:
                 if (values == null || values.length == 0) {
@@ -276,9 +291,13 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
                 Long[] insertedIds = new Long[values.length];
                 for (int i = 0; i < values.length; i++) {
                     ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[i], null);
-                    insertedIds[i] = (queryType == INSERT) ?
-                            database.insert(contentValues) :
-                            database.insertOrIgnore(contentValues);
+                    if (queryType == INSERT) {
+                        insertedIds[i] = database.insert(contentValues);
+                    } else if (queryType == INSERT_OR_IGNORE) {
+                        insertedIds[i] = database.insertOrIgnore(contentValues);
+                    } else if (queryType == INSERT_WITH_CONFLICT) {
+                        insertedIds[i] = database.insertWithOnConflict(contentValues, this.conflict);
+                    }
                 }
                 database.close();
                 return (RunReturn) insertedIds;
@@ -293,12 +312,15 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
                 }
                 database.close();
                 return (RunReturn) replacedIds;
+            case UPDATE_WITH_CONFLICT:
             case UPDATE:
                 if (values == null || values.length == 0) {
                     throw new IllegalStateException("No values were provided for this query to run.");
                 }
                 ContentValues contentValues = DatabaseAdapter.save(inquiry, inquiry.getConverters(), values[values.length - 1], onlyUpdate);
-                RunReturn updatedRows = (RunReturn) (Integer) database.update(contentValues, getSelection(), getSelectionArgs());
+                RunReturn updatedRows = (queryType == UPDATE)
+                        ? (RunReturn) (Integer) database.update(contentValues, getSelection(), getSelectionArgs())
+                        : (RunReturn) (Integer) database.updateWithOnConflict(contentValues, getSelection(), getSelectionArgs(), this.conflict);
                 database.close();
                 return updatedRows;
             case DELETE: {

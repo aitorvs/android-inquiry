@@ -1,13 +1,17 @@
 package com.heinrichreimer.inquiry;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
+import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.heinrichreimer.inquiry.convert.Converter;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,6 +111,11 @@ public final class Inquiry implements DataBase {
     }
 
     @NonNull
+    public <RowType> Query<RowType, Long[]> insertWithConflict(@NonNull Class<RowType> rowType) {
+        return new Query<>(this, Query.INSERT_WITH_CONFLICT, rowType);
+    }
+
+    @NonNull
     public <RowType> Query<RowType, Long[]> replace(@NonNull Class<RowType> rowType) {
         return new Query<>(this, Query.REPLACE, rowType);
     }
@@ -117,7 +126,28 @@ public final class Inquiry implements DataBase {
     }
 
     @NonNull
+    public <RowType> Query<RowType, Integer> updateWithConflict(@NonNull Class<RowType> rowType) {
+        return new Query<>(this, Query.UPDATE_WITH_CONFLICT, rowType);
+    }
+
+    @NonNull
     public <RowType> Query<RowType, Integer> delete(@NonNull Class<RowType> rowType) {
         return new Query<>(this, Query.DELETE, rowType);
     }
+
+
+    /**
+     * Conflict policy
+     */
+    @IntDef({CONFLICT_ABORT, CONFLICT_FAIL, CONFLICT_IGNORE, CONFLICT_NONE, CONFLICT_REPLACE, CONFLICT_ROLLBACK})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface ConflictAlgorithm{}
+
+    public static final int CONFLICT_ABORT = SQLiteDatabase.CONFLICT_ABORT;
+    public static final int CONFLICT_FAIL = SQLiteDatabase.CONFLICT_FAIL;
+    public static final int CONFLICT_IGNORE = SQLiteDatabase.CONFLICT_IGNORE;
+    public static final int CONFLICT_NONE = SQLiteDatabase.CONFLICT_NONE;
+    public static final int CONFLICT_REPLACE = SQLiteDatabase.CONFLICT_REPLACE;
+    public static final int CONFLICT_ROLLBACK = SQLiteDatabase.CONFLICT_ROLLBACK;
+
 }
