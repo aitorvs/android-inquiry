@@ -203,6 +203,10 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public Query<RowType, RunReturn> conflict(@Inquiry.ConflictAlgorithm int conflictAlgorithm) {
+        if (queryType != INSERT_WITH_CONFLICT && queryType != UPDATE_WITH_CONFLICT) {
+            throw new UnsupportedOperationException("conflict() can only be used with " +
+                    "inquiry.insertWithConflict() or inquiry.updateWithConflict()");
+        }
         this.conflict = conflictAlgorithm;
         return this;
     }
