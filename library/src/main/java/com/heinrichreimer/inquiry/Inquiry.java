@@ -3,10 +3,12 @@ package com.heinrichreimer.inquiry;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.IntDef;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.heinrichreimer.inquiry.convert.Converter;
 
@@ -35,7 +37,15 @@ public final class Inquiry implements DataBase {
                    @Nullable String databaseName,
                    @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
 
-        handler = new Handler();
+        try {
+            // try to create the handler inside the calling thread. If this thread does not have a
+            // default looper, e.g. JobService(s)...
+            handler = new Handler();
+        } catch (RuntimeException e) {
+            // ... exception will be thrown, so get the main looper
+            Log.w(Inquiry.DEBUG_TAG, "Caller thread has no default looper, using main looper");
+            handler = new Handler(Looper.getMainLooper());
+        }
         this.context = context;
         this.databaseName = databaseName;
         this.databaseVersion = databaseVersion;
