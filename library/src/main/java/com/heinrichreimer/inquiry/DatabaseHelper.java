@@ -29,11 +29,30 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
         mOnUpgradeCallback = upgradeCallback;
         this.table = table;
-        if (columns != null) {
-            getWritableDatabase(); //This will invoke onUpgrade if necessary
+        if (columns != null && (!databaseExists(context, databaseName) || !tableExists(table))) {
             String createStatement = String.format("CREATE TABLE IF NOT EXISTS %s (%s)", table, columns);
             getWritableDatabase().execSQL(createStatement);
         }
+    }
+
+    private boolean databaseExists(Context context, String name) {
+        return context.getDatabasePath(name).exists();
+    }
+
+    private boolean tableExists(String name) {
+        Cursor cursor = getReadableDatabase()
+                .rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+name+"'", null);
+        if(cursor != null) {
+            if(cursor.getCount() > 0) {
+                // close the cursor
+                cursor.close();
+                // table does exist
+                return true;
+            }
+            // make sure we close the cursor
+            cursor.close();
+        }
+        return false;
     }
 
     @Override
