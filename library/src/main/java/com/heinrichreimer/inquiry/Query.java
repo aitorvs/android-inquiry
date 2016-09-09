@@ -89,13 +89,13 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
         if (cursor != null) {
             if (position < 0 || position >= cursor.getCount()) {
                 cursor.close();
-                throw new IndexOutOfBoundsException(String.format(Locale.getDefault(),
+                throw new IndexOutOfBoundsException(String.format(Locale.US,
                         "Position %d is out of bounds for cursor of size %d.",
                         position, cursor.getCount()));
             }
             if (!cursor.moveToPosition(position)) {
                 cursor.close();
-                throw new IllegalStateException(String.format(Locale.getDefault(),
+                throw new IllegalStateException(String.format(Locale.US,
                         "Unable to move to position %d in cursor of size %d.",
                         position, cursor.getCount()));
             }
@@ -365,8 +365,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
 
             StringBuilder sort = new StringBuilder();
             sort.append(getSortOrder());
-            if (limit > 0) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
-            if (offset > 0) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+            if (limit > 0) sort.append(String.format(Locale.US, " LIMIT %d", limit));
+            if (offset > 0) sort.append(String.format(Locale.US, " OFFSET %d", offset));
 
             Cursor cursor = database.query(projection, getSelection(), getSelectionArgs(), sort.toString());
             if (cursor == null)
@@ -394,8 +394,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
         } else {
             StringBuilder sort = new StringBuilder();
             sort.append(getSortOrder());
-            if (limit > 0) sort.append(String.format(Locale.getDefault(), " LIMIT %d", limit));
-            if (offset > 0) sort.append(String.format(Locale.getDefault(), " OFFSET %d", offset));
+            if (limit > 0) sort.append(String.format(Locale.US, " LIMIT %d", limit));
+            if (offset > 0) sort.append(String.format(Locale.US, " OFFSET %d", offset));
 
             Cursor cursor = database.query(new String[]{Inquiry.ID}, getSelection(), getSelectionArgs(), sort.toString());
             if (cursor == null)
