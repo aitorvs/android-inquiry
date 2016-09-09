@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 public @interface Column {
     String value() default "";
 
+    boolean primaryKey() default false;
     boolean unique() default false;
     boolean autoIncrement() default false;
     boolean notNull() default false;
