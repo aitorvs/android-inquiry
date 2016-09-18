@@ -51,7 +51,7 @@ public final class Inquiry {
     public static Inquiry init(@NonNull Context context, @Nullable String databaseName,
                                @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
         if (inquiry != null) {
-            throw new IllegalStateException("Inquiry already initialized, deinit() first");
+            throw new IllegalStateException("Inquiry already initialized, call Inquiry.deinit() first");
         }
 
         inquiry = new Inquiry(context, databaseName, databaseVersion);
