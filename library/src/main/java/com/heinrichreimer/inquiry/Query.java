@@ -20,8 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.heinrichreimer.inquiry.Preconditions.checkNotNull;
-
 public final class Query<RowType, RunReturn> implements UpgradeCallback {
 
     @IntDef({SELECT, INSERT, REPLACE, UPDATE, DELETE, INSERT_OR_IGNORE})
@@ -113,7 +111,9 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public Query<RowType, RunReturn> where(@NonNull String selection, @Nullable Object... selectionArgs) {
-        int args = Utils.countOccurrences(checkNotNull(selection), '?');
+        Preconditions.checkNotNull(selection);
+
+        int args = Utils.countOccurrences(selection, '?');
         if ((selectionArgs == null && args != 0) ||
                 (selectionArgs != null && selectionArgs.length != args))
             throw new IllegalArgumentException("There must be exactly as many selection args as " +
@@ -126,11 +126,13 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public Query<RowType, RunReturn> whereIn(@NonNull String column, @Nullable Object... selectionArgs) {
+        Preconditions.checkNotNull(column);
+
         if (selectionArgs == null)
             return this;
 
         StringBuilder in = new StringBuilder();
-        in.append(checkNotNull(column));
+        in.append(column);
         in.append(" IN (");
         boolean first = true;
         for (Object ignored : selectionArgs) {
@@ -184,8 +186,9 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
 
     @SuppressWarnings("unchecked")
     public final Query<RowType, RunReturn> value(@NonNull Object value) {
+        Preconditions.checkNotNull(value);
         values = (RowType[]) Array.newInstance(rowType, 1);
-        Array.set(values, 0, checkNotNull(value));
+        Array.set(values, 0, value);
         return this;
     }
 
@@ -212,6 +215,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public void one(@NonNull final RunCallback<RowType> callback) {
+        Preconditions.checkNotNull(callback);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -220,7 +225,7 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
                 inquiry.handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        checkNotNull(callback).result(results);
+                        callback.result(results);
                     }
                 });
             }
@@ -233,6 +238,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public void all(@NonNull final RunCallback<RowType[]> callback) {
+        Preconditions.checkNotNull(callback);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -241,7 +248,7 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
                 inquiry.handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        checkNotNull(callback).result(results);
+                        callback.result(results);
                     }
                 });
             }
@@ -314,6 +321,8 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
     }
 
     public void run(@NonNull final RunCallback<RunReturn> callback) {
+        Preconditions.checkNotNull(callback);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -322,7 +331,7 @@ public final class Query<RowType, RunReturn> implements UpgradeCallback {
                 inquiry.handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        checkNotNull(callback).result(changed);
+                        callback.result(changed);
                     }
                 });
             }

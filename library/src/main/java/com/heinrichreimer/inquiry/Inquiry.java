@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.heinrichreimer.inquiry.Preconditions.checkNotNull;
-
 public final class Inquiry {
 
     public static final String ID = "_id";
@@ -34,6 +32,8 @@ public final class Inquiry {
                    @Nullable String databaseName,
                    @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
 
+        Preconditions.checkNotNull(context);
+
         try {
             // try to create the handler inside the calling thread. If this thread does not have a
             // default looper, e.g. JobService(s)...
@@ -44,7 +44,7 @@ public final class Inquiry {
             handler = new Handler(Looper.getMainLooper());
         }
 
-        this.context = checkNotNull(context);
+        this.context = context;
         this.databaseName = databaseName;
         this.databaseVersion = databaseVersion;
     }
@@ -52,7 +52,8 @@ public final class Inquiry {
     @NonNull
     public static Inquiry init(@NonNull Context context, @Nullable String databaseName,
                                @IntRange(from = 1, to = Integer.MAX_VALUE) int databaseVersion) {
-        inquiry = new Inquiry(checkNotNull(context), databaseName, databaseVersion);
+        Preconditions.checkNotNull(context);
+        inquiry = new Inquiry(context, databaseName, databaseVersion);
         return inquiry;
     }
 
@@ -94,7 +95,8 @@ public final class Inquiry {
     }
 
     public void dropTable(@NonNull Class<?> type) {
-        if (!DatabaseSchemaParser.isTable(checkNotNull(type)))
+        Preconditions.checkNotNull(type);
+        if (!DatabaseSchemaParser.isTable(type))
             throw new UnsupportedOperationException("Unable to drop table for type " + type.getSimpleName());
 
         String table = DatabaseSchemaParser.getTableName(type);
@@ -105,31 +107,37 @@ public final class Inquiry {
 
     @NonNull
     public <RowType> Query<RowType, Long[]> select(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.SELECT, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.SELECT, rowType);
     }
 
     @NonNull
     public <RowType> Query<RowType, Long[]> insert(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.INSERT, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.INSERT, rowType);
     }
 
     @NonNull
     public <RowType> Query<RowType, Long[]> insertOrIgnore(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.INSERT_OR_IGNORE, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.INSERT_OR_IGNORE, rowType);
     }
 
     @NonNull
     public <RowType> Query<RowType, Long[]> replace(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.REPLACE, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.REPLACE, rowType);
     }
 
     @NonNull
     public <RowType> Query<RowType, Integer> update(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.UPDATE, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.UPDATE, rowType);
     }
 
     @NonNull
     public <RowType> Query<RowType, Integer> delete(@NonNull Class<RowType> rowType) {
-        return new Query<>(this, Query.DELETE, checkNotNull(rowType));
+        Preconditions.checkNotNull(rowType);
+        return new Query<>(this, Query.DELETE, rowType);
     }
 }
